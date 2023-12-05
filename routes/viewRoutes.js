@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.use(viewsController.alerts);
 
+router.get('/home', viewsController.renderHome);
+
 router.route('/').get(authController.isLoggedIn, viewsController.getOverview);
 router
   .route('/tour/:slug')

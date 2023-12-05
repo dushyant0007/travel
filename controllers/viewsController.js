@@ -2,6 +2,7 @@ const Tour = require('../models/tourModel');
 const Booking = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const path = require('path');
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -11,6 +12,11 @@ exports.alerts = (req, res, next) => {
       "Reservation confirmed! Check your inbox for a confirmation email. If your booking doesn't appear immediately, please return later.";
 
   next();
+};
+
+
+exports.renderHome = (req, res) => {
+  res.render('home');
 };
 
 /**
