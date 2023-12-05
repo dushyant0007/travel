@@ -4,10 +4,10 @@ block content
   main.main
     .signup-form
       h2.heading-secondary.ma-bt-lg Create your account
-      form.form.form--signup
+      form.form.form--signup(id='signup-form')
         .form__group
           label.form__label(for='name') Your name
-          input#name.form__input(type='text', placeholder='Eliana Stout', required)
+          input#name.form__input(type='text', placeholder='Eliana Stout', required, pattern="[a-zA-Z ]+")
         .form__group
           label.form__label(for='email') Email address
           input#email.form__input(type='email', placeholder='you@example.com', required)
@@ -18,4 +18,11 @@ block content
           label.form__label(for='password-confirm') Confirm password
           input#password-confirm.form__input(type='password', placeholder='••••••••', required, minlength='8')
         .form__group
-          button.btn.btn--green Sign Up
+          button.btn.btn--green(id='submit-button') Sign Up
+      script.
+        document.getElementById('submit-button').addEventListener('mouseover', function(event) {
+          var emailInput = document.getElementById('email');
+          if (!/@gmail\.com$/.test(emailInput.value)) {
+            alert('Please enter a Gmail ID.');
+          }
+        });
