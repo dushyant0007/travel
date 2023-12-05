@@ -21,7 +21,7 @@ exports.renderHome = (req, res) => {
 
 /**
  * @description - Get all tours
- * @route - GET Root("/")
+ * @route - GET Root("/tours")
  */
 exports.getOverview = catchAsync(async (req, res, next) => {
   // 1) Get tour data from collection

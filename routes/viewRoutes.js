@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(viewsController.alerts);
 
-router.get('/home', viewsController.renderHome);
+router.get('/', viewsController.renderHome);
 
-router.route('/').get(authController.isLoggedIn, viewsController.getOverview);
+router.route('/tours').get(authController.isLoggedIn, viewsController.getOverview);
 router
   .route('/tour/:slug')
   .get(authController.isLoggedIn, viewsController.getTour);
