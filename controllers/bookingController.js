@@ -1,4 +1,4 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')('sk_test_51OK4dHSIwM3tmlJk7C7dodFuSlymzUXBFG1iXfLwkLY7vU2F3gqbrRIn2sYemvZ9r3tJqG9p4SyQ8VAM6lh5x7C300NuvtZ4z1');
 const Tour = require('../models/tourModel');
 const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
@@ -78,7 +78,7 @@ exports.webhookCheckout = (req, res, next) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env.whsec_a255dfb5e199b694a89019e110044b24885bfbc7c151f0a22fbefa2cd2ad3d85
     );
   } catch (error) {
     return res.status(400).send(`Webhook Error: ${error.message}`);
