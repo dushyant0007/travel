@@ -1,4 +1,4 @@
-const stripe = require('stripe')(process.env.sk_test_51OK4dHSIwM3tmlJkT82MA4p7gjrzA8ZxZBADiWmWkhZ4XpI7GVL5fJXdBlY5ykNuUQBi81XWrdiMYPrctVcHLGcg00ep7mhsL1);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Tour = require('../models/tourModel');
 const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
@@ -9,13 +9,43 @@ const factory = require('./handlerFactory');
 // Stripe JS reference - https://stripe.com/docs/js
 // Stripe API reference - https://stripe.com/docs/api
 
+
+
+/** Source - https://stripe.com/docs/payments/handling-payment-events
+ * @description - (app.js) webhook endpoint after successful payment event
+ * @route - POST /webhook-checkout
+ */
+exports.webhookCheckout = (req, res, next) => {
+  // Check webhook signature
+  const signature = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (error) {
+    return res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+  // Handle the event
+  if (event.type === 'checkout.session.completed'){
+    createBookingCheckout(event.data.object);
+  }
+
+  res.status(200).json({ received: true });
+};
+
+
 /**
  * @description - Create checkout session and send as response
  * @route - GET /checkout-session/:tourId
  */
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
-  const tour = await Tour.findById(req.params.tourId);
+    const tour = await Tour.findById(req.params.tourId);
 
   // 2) Create checkout session
   const session = await stripe.checkout.sessions.create({
@@ -53,43 +83,22 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     status: 'success',
     session,
   });
+
+  createBookingCheckout(session);
+
 });
 
 const createBookingCheckout = async (session) => {
+  console.log(session)
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.amount_total / 100;
-
+  console.log(tour,user,price)
   await Booking.create({ tour, user, price });
+
 };
 
-/**
- * Source - https://stripe.com/docs/payments/handling-payment-events
- * @description - (app.js) webhook endpoint after successful payment event
- * @route - POST /webhook-checkout
- */
-exports.webhookCheckout = (req, res, next) => {
-  // Check webhook signature
-  const signature = req.headers['stripe-signature'];
-
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      signature,
-      process.env.whsec_a255dfb5e199b694a89019e110044b24885bfbc7c151f0a22fbefa2cd2ad3d85
-    );
-  } catch (error) {
-    return res.status(400).send(`Webhook Error: ${error.message}`);
-  }
-
-  // Handle the event
-  if (event.type === 'checkout.session.completed')
-    createBookingCheckout(event.data.object);
-
-  res.status(200).json({ received: true });
-};
+ 
 
 exports.createBooking = factory.createOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
